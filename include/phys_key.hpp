@@ -9,7 +9,6 @@ class PhysKey {
     Finger finger;
 
 public:
-    PhysKey() : abs_x(0.0f), abs_y(0.0f) {}
     PhysKey(float x, float y, Finger f) : abs_x(x), abs_y(y), finger(f) {}
     Finger get_finger() { return finger; }
 
@@ -24,6 +23,4 @@ public:
         float y_diff = abs_y - other.abs_y;
         return std::sqrt(x_diff * x_diff + y_diff * y_diff);
     }
-
-    static std::unordered_map<std::string, PhysKey> phys_key_positions();
 };

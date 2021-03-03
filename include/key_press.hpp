@@ -2,6 +2,8 @@
 #include <iterator>
 #include <phys_key.hpp>
 
+// TODO: I ought to replace this with a SmallVector or something, but it was quite fun to implement...
+// TODO: Rename
 struct KeyPress {
     PhysKey main;
     std::tuple<std::optional<PhysKey>, std::optional<PhysKey>> modifiers;
@@ -67,11 +69,12 @@ struct KeyPress {
                 case 2:
                     return &std::get<1>(press.modifiers).value();
                 default:
-                    throw std::out_of_range("KeyPressIterator index");
+                    throw std::out_of_range("KeyPressIterator index out of range");
             }
         }
 
         PhysKey& operator*() {
+            // TODO: It would be nice to reduce the repitition of this switch
             switch (index) {
                 case 0:
                     return press.main;
@@ -80,7 +83,7 @@ struct KeyPress {
                 case 2:
                     return std::get<1>(press.modifiers).value();
                 default:
-                    throw std::out_of_range("KeyPressIterator index");
+                    throw std::out_of_range("KeyPressIterator index out of range");
             }
         }
     };

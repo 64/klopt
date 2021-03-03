@@ -1,9 +1,9 @@
 #include <unordered_map>
 #include <string>
 #include <phys_key.hpp>
+#include <phys_layout.hpp>
 
-std::unordered_map<std::string, PhysKey> PhysKey::phys_key_positions() {
-    // Based on ISO QWERTY GB keyboard layout
+PhysLayout PhysLayout::get_iso_gb() {
     std::unordered_map<std::string, PhysKey> map;
 
     map.insert({ "backtick",  PhysKey(0.5f,  0.5f, Finger::LEFT_PINKIE) });
@@ -68,5 +68,6 @@ std::unordered_map<std::string, PhysKey> PhysKey::phys_key_positions() {
     map.insert({ "space", PhysKey(6.5f,  4.5f, Finger::RIGHT_THUMB) });
     map.insert({ "altgr", PhysKey(9.7f,  4.5f, Finger::RIGHT_THUMB) });
     map.insert({ "rctrl", PhysKey(11.7f,  4.5f, Finger::RIGHT_PINKIE) });
-    return map;
+
+    return PhysLayout(map);
 }

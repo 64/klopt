@@ -1,15 +1,24 @@
 #include <optional>
+#include <cctype>
+#include <phys_layout.hpp>
 #include <layout.hpp>
 
-Layout::Layout(std::initializer_list<std::pair<char, KeyPress>> char_key_map) {
+Layout::Layout(PhysLayout phys_map, std::initializer_list<std::pair<char, KeyPress>> char_key_map) : phys_map(phys_map) {
     for (auto char_key : char_key_map) {
         key_map[char_key.first] = char_key.second;
+
+        // Add the uppercase variant as well, with the appropriate shift key held
+        if (std::islower(char_key.first)) {
+            auto finger = char_key.second.main.get_finger();
+            auto shift_string = finger.get_opposite_pinkie() == Finger::LEFT_PINKIE ? "lshift" : "rshift";
+            key_map[std::toupper(char_key.first)] = KeyPress(char_key.second.main, phys_map[shift_string]);
+        }
     }
 }
 
 float Layout::score_text(std::string_view text) {
     // Fingers start on the home row
-    std::array<PhysKey, 10> last_finger_pos = {
+    std::array<PhysKey, Finger::NUM_FINGERS> last_finger_pos = {
         PhysKey(1.5f,  2.5f, Finger::LEFT_PINKIE), // A
         PhysKey(2.5f,  2.5f, Finger::LEFT_RING), // S
         PhysKey(3.5f,  2.5f, Finger::LEFT_MIDDLE), // D
@@ -31,8 +40,8 @@ float Layout::score_text(std::string_view text) {
         for (PhysKey next_key : next_key_seq) {
             int moving_finger_idx = static_cast<int>(next_key.get_finger());
             PhysKey last_key = last_finger_pos[moving_finger_idx];
-            penalty += next_key.distance_to(last_key);
             last_finger_pos[moving_finger_idx] = next_key;
+            penalty += next_key.distance_to(last_key);
         }
     }
 
@@ -40,9 +49,9 @@ float Layout::score_text(std::string_view text) {
 }
 
 Layout Layout::get_qwerty() {
-    auto phys_map = PhysKey::phys_key_positions();
+    auto phys_map = PhysLayout::get_iso_gb();
 
-    return Layout({
+    return Layout(phys_map, {
         { '`', phys_map["backtick"] },
         { '1', phys_map["one"] },
         { '2', phys_map["two"] },
@@ -80,16 +89,6 @@ Layout Layout::get_qwerty() {
         { 'i', phys_map["i"] },
         { 'o', phys_map["o"] },
         { 'p', phys_map["p"] },
-        { 'Q', { phys_map["q"], phys_map["rshift"] } },
-        { 'W', { phys_map["w"], phys_map["rshift"] } },
-        { 'E', { phys_map["e"], phys_map["rshift"] } },
-        { 'R', { phys_map["r"], phys_map["rshift"] } },
-        { 'T', { phys_map["t"], phys_map["rshift"] } },
-        { 'Y', { phys_map["y"], phys_map["lshift"] } },
-        { 'U', { phys_map["u"], phys_map["lshift"] } },
-        { 'I', { phys_map["i"], phys_map["lshift"] } },
-        { 'O', { phys_map["o"], phys_map["lshift"] } },
-        { 'P', { phys_map["p"], phys_map["lshift"] } },
         { '[', phys_map["["] },
         { ']', phys_map["]"] },
         { '{', { phys_map["["], phys_map["lshift"] } },
@@ -104,15 +103,6 @@ Layout Layout::get_qwerty() {
         { 'j', phys_map["j"] },
         { 'k', phys_map["k"] },
         { 'l', phys_map["l"] },
-        { 'A', { phys_map["a"], phys_map["rshift"] } },
-        { 'S', { phys_map["s"], phys_map["rshift"] } },
-        { 'D', { phys_map["d"], phys_map["rshift"] } },
-        { 'F', { phys_map["f"], phys_map["rshift"] } },
-        { 'G', { phys_map["g"], phys_map["rshift"] } },
-        { 'H', { phys_map["h"], phys_map["lshift"] } },
-        { 'J', { phys_map["j"], phys_map["lshift"] } },
-        { 'K', { phys_map["k"], phys_map["lshift"] } },
-        { 'L', { phys_map["l"], phys_map["lshift"] } },
         { ';', phys_map[";"] },
         { '\'', phys_map["'"] },
         { '#', phys_map["#"] },
@@ -129,13 +119,6 @@ Layout Layout::get_qwerty() {
         { 'b', phys_map["b"] },
         { 'n', phys_map["n"] },
         { 'm', phys_map["m"] },
-        { 'Z', { phys_map["z"], phys_map["rshift"] } },
-        { 'X', { phys_map["x"], phys_map["rshift"] } },
-        { 'C', { phys_map["c"], phys_map["rshift"] } },
-        { 'V', { phys_map["v"], phys_map["rshift"] } },
-        { 'B', { phys_map["b"], phys_map["rshift"] } },
-        { 'N', { phys_map["n"], phys_map["lshift"] } },
-        { 'M', { phys_map["m"], phys_map["lshift"] } },
         { ',', phys_map[","] },
         { '.', phys_map["."] },
         { '/', phys_map["/"] },
