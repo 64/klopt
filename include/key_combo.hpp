@@ -2,18 +2,18 @@
 #include <iterator>
 #include <phys_key.hpp>
 
-// TODO: I ought to replace this with a SmallVector or something, but it was quite fun to implement...
 // TODO: Rename
-struct KeyPress {
+// This is pretty hacky... but it seems like the nicest interface without including some small_vector library
+struct KeyCombo {
     PhysKey main;
     std::tuple<std::optional<PhysKey>, std::optional<PhysKey>> modifiers;
 
-    KeyPress(PhysKey key) : main(key) {}
-    KeyPress(PhysKey key, PhysKey modA) : main(key), modifiers({ modA, std::nullopt }) {}
-    KeyPress(PhysKey key, PhysKey modA, PhysKey modB) : main(key), modifiers({ modA, modB }) {}
+    KeyCombo(PhysKey key) : main(key) {}
+    KeyCombo(PhysKey key, PhysKey modA) : main(key), modifiers({ modA, std::nullopt }) {}
+    KeyCombo(PhysKey key, PhysKey modA, PhysKey modB) : main(key), modifiers({ modA, modB }) {}
 
-    class KeyPressIterator {
-        KeyPress& press;
+    class KeyComboIterator {
+        KeyCombo& press;
         int index = 0;
 
     public:
@@ -23,17 +23,18 @@ struct KeyPress {
         using pointer_type = PhysKey*;
         using reference = PhysKey&;
 
-        KeyPressIterator(KeyPress& press) : press(press) {}
-        KeyPressIterator(KeyPress& press, int index) : press(press), index(index) {}
+        KeyComboIterator(KeyCombo& press) : press(press) {}
+        KeyComboIterator(KeyCombo& press, int index) : press(press), index(index) {}
 
-        bool operator==(const KeyPressIterator& other) { return this->index == other.index; }
-        bool operator!=(const KeyPressIterator& other) { return this->index != other.index; }
+        bool operator==(const KeyComboIterator& other) { return this->index == other.index; }
+        bool operator!=(const KeyComboIterator& other) { return this->index != other.index; }
 
-        KeyPressIterator begin() { return KeyPressIterator(press, 0); }
-        KeyPressIterator end() { return KeyPressIterator(press, -1); }
+        KeyComboIterator begin() { return KeyComboIterator(press, 0); }
+        KeyComboIterator end() { return KeyComboIterator(press, -1); }
 
-        KeyPressIterator& operator++() {
+        KeyComboIterator& operator++() {
             bool exists;
+            // TODO: It would be nice to reduce the repitition of this switch
             switch (index + 1) {
                 case 1:
                     exists = std::get<0>(press.modifiers).has_value();
@@ -54,8 +55,8 @@ struct KeyPress {
             return *this;
         }
 
-        KeyPressIterator operator++(int) {
-            KeyPressIterator old = *this;
+        KeyComboIterator operator++(int) {
+            KeyComboIterator old = *this;
             operator++();
             return old;
         }
@@ -69,12 +70,11 @@ struct KeyPress {
                 case 2:
                     return &std::get<1>(press.modifiers).value();
                 default:
-                    throw std::out_of_range("KeyPressIterator index out of range");
+                    throw std::out_of_range("KeyComboIterator index out of range");
             }
         }
 
         PhysKey& operator*() {
-            // TODO: It would be nice to reduce the repitition of this switch
             switch (index) {
                 case 0:
                     return press.main;
@@ -83,11 +83,11 @@ struct KeyPress {
                 case 2:
                     return std::get<1>(press.modifiers).value();
                 default:
-                    throw std::out_of_range("KeyPressIterator index out of range");
+                    throw std::out_of_range("KeyComboIterator index out of range");
             }
         }
     };
 
-    KeyPressIterator begin() { return KeyPressIterator(*this).begin(); }
-    KeyPressIterator end() { return KeyPressIterator(*this).end(); }
+    KeyComboIterator begin() { return KeyComboIterator(*this).begin(); }
+    KeyComboIterator end() { return KeyComboIterator(*this).end(); }
 };

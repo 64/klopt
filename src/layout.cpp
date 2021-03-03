@@ -3,7 +3,7 @@
 #include <phys_layout.hpp>
 #include <layout.hpp>
 
-Layout::Layout(PhysLayout phys_map, std::initializer_list<std::pair<char, KeyPress>> char_key_map) : phys_map(phys_map) {
+Layout::Layout(PhysLayout phys_map, std::initializer_list<std::pair<char, KeyCombo>> char_key_map) : phys_map(phys_map) {
     for (auto char_key : char_key_map) {
         key_map[char_key.first] = char_key.second;
 
@@ -11,7 +11,7 @@ Layout::Layout(PhysLayout phys_map, std::initializer_list<std::pair<char, KeyPre
         if (std::islower(char_key.first)) {
             auto finger = char_key.second.main.get_finger();
             auto shift_string = finger.get_opposite_pinkie() == Finger::LEFT_PINKIE ? "lshift" : "rshift";
-            key_map[std::toupper(char_key.first)] = KeyPress(char_key.second.main, phys_map[shift_string]);
+            key_map[std::toupper(char_key.first)] = KeyCombo(char_key.second.main, phys_map[shift_string]);
         }
     }
 }
@@ -34,7 +34,7 @@ float Layout::score_text(std::string_view text) {
     float penalty = 0.0f;
 
     for (auto c : text) {
-        KeyPress next_key_seq = key_map[c].value();
+        KeyCombo next_key_seq = key_map[c].value();
 
         // Some characters require more than one key press (e.g uppercase characters)
         for (PhysKey next_key : next_key_seq) {

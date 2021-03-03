@@ -1,5 +1,5 @@
 #include <catch2/catch.hpp>
-#include <key_press.hpp>
+#include <key_combo.hpp>
 #include <finger.hpp>
 
 TEST_CASE("key distances", "[key]") {
@@ -13,9 +13,9 @@ TEST_CASE("key press", "[key]") {
     auto key_b = PhysKey(0.0f, 1.0f, Finger::LEFT_INDEX);
     auto key_c = PhysKey(0.0f, 2.0f, Finger::LEFT_INDEX);
 
-    auto key_press_a = KeyPress(key_a);
-    auto key_press_b = KeyPress(key_a, key_b);
-    auto key_press_c = KeyPress(key_a, key_b, key_c);
+    auto key_press_a = KeyCombo(key_a);
+    auto key_press_b = KeyCombo(key_a, key_b);
+    auto key_press_c = KeyCombo(key_a, key_b, key_c);
 
     int iter_index = 0;
     for (PhysKey k : key_press_a) {
