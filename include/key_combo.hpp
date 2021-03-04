@@ -12,6 +12,10 @@ struct KeyCombo {
     KeyCombo(PhysKey key, PhysKey modA) : main(key), modifiers({ modA, std::nullopt }) {}
     KeyCombo(PhysKey key, PhysKey modA, PhysKey modB) : main(key), modifiers({ modA, modB }) {}
 
+    void set_main(PhysKey new_main) {
+        main = new_main; 
+    }
+
     class KeyComboIterator {
         KeyCombo& press;
         int index = 0;

@@ -1,51 +1,81 @@
 #include <optional>
 #include <cctype>
+#include <random>
+#include <queue>
+#include <iostream>
 #include <phys_layout.hpp>
 #include <layout.hpp>
 
-Layout::Layout(PhysLayout phys_map, std::initializer_list<std::pair<char, KeyCombo>> char_key_map) : phys_map(phys_map) {
+Layout::Layout(PhysLayout phys_map,
+        std::initializer_list<std::pair<char, KeyCombo>> char_key_map,
+        std::initializer_list<PhysKey> home_row_keys) : home_row() {
     for (auto char_key : char_key_map) {
         key_map[char_key.first] = char_key.second;
 
         // Add the uppercase variant as well, with the appropriate shift key held
         if (std::islower(char_key.first)) {
-            auto finger = char_key.second.main.get_finger();
+            auto finger = char_key.second.main.finger;
             auto shift_string = finger.get_opposite_pinkie() == Finger::LEFT_PINKIE ? "lshift" : "rshift";
             key_map[std::toupper(char_key.first)] = KeyCombo(char_key.second.main, phys_map[shift_string]);
         }
     }
+
+    for (auto key : home_row_keys) {
+        home_row[key.finger] = key; 
+    }
 }
 
-float Layout::score_text(std::string_view text) {
-    // Fingers start on the home row
-    std::array<PhysKey, Finger::NUM_FINGERS> last_finger_pos = {
-        PhysKey(1.5f,  2.5f, Finger::LEFT_PINKIE), // A
-        PhysKey(2.5f,  2.5f, Finger::LEFT_RING), // S
-        PhysKey(3.5f,  2.5f, Finger::LEFT_MIDDLE), // D
-        PhysKey(4.5f,  2.5f, Finger::LEFT_INDEX), // F
-        PhysKey(5.5f,  6.5f, Finger::LEFT_THUMB), // LThumb: Space
-        PhysKey(6.5f,  6.5f, Finger::RIGHT_THUMB), // RThumb: Space
-        PhysKey(7.5f,  2.5f, Finger::RIGHT_INDEX), // J
-        PhysKey(8.5f,  2.5f, Finger::RIGHT_MIDDLE), // K
-        PhysKey(9.5f,  2.5f, Finger::RIGHT_RING), // L
-        PhysKey(10.5f, 2.5f, Finger::RIGHT_PINKIE), // ;
-    };
+char random_char(std::mt19937& rng) {
+    const char *swappable = u8"abcdefghijklmnopqrstuvwxyz";
+    std::uniform_int_distribution<> distrib(0, 25);
+    return swappable[distrib(rng)];
+}
 
-    float penalty = 0.0f;
+Layout Layout::mutate(std::mt19937& rng) const {
+    Layout copy = *this;
 
-    for (auto c : text) {
-        KeyCombo next_key_seq = key_map[c].value();
+    char a = random_char(rng); 
+    char b = random_char(rng); 
 
-        // Some characters require more than one key press (e.g uppercase characters)
-        for (PhysKey next_key : next_key_seq) {
-            int moving_finger_idx = static_cast<int>(next_key.get_finger());
-            PhysKey last_key = last_finger_pos[moving_finger_idx];
-            last_finger_pos[moving_finger_idx] = next_key;
-            penalty += next_key.distance_to(last_key);
-        }
+    std::swap<KeyCombo>(copy.key_map[a], copy.key_map[b]);
+
+    // Correct the capitalized versions
+    if (std::isupper(a)) {
+        copy.key_map[std::toupper(a)].value().set_main(copy.key_map[a].value().main);
     }
 
-    return penalty;
+    if (std::isupper(b)) {
+        copy.key_map[std::toupper(b)].value().set_main(copy.key_map[b].value().main);
+    }
+
+    return copy;
+}
+
+void Layout::print() const {
+    auto cmp = [](std::pair<char, PhysKey> a, std::pair<char, PhysKey> b) {
+        if (a.second.abs_y == b.second.abs_y)
+            return a.second.abs_x > b.second.abs_x;
+        else
+            return a.second.abs_y > b.second.abs_y;
+    };
+    std::priority_queue<std::pair<char, PhysKey>, std::vector<std::pair<char, PhysKey>>, decltype(cmp)> queue(cmp);
+
+    std::string printable = "1234567890-=qwertyuiop[]asdfghjkl;'#\\zxcvbnm,./";
+    for (auto c : printable)
+        queue.push({ c, key_map[c].value().main });
+
+    float current_y = queue.top().second.abs_y;
+    while(!queue.empty()) {
+        auto key = queue.top();
+        if (current_y < key.second.abs_y) {
+            std::putchar('\n');
+            current_y = key.second.abs_y;
+        }
+
+        std::putchar(key.first);
+        queue.pop();
+    }
+    std::putchar('\n');
 }
 
 Layout Layout::get_qwerty() {
@@ -127,5 +157,19 @@ Layout Layout::get_qwerty() {
         { '?', { phys_map["/"], phys_map["lshift"] } },
 
         { ' ', phys_map["space"] }
+    }, 
+    // Home row 
+    // TODO: This should really be moved to PhysLayout
+    {
+        PhysKey(1.5f,  2.5f, Finger::LEFT_PINKIE), // A
+        PhysKey(2.5f,  2.5f, Finger::LEFT_RING), // S
+        PhysKey(3.5f,  2.5f, Finger::LEFT_MIDDLE), // D
+        PhysKey(4.5f,  2.5f, Finger::LEFT_INDEX), // F
+        PhysKey(5.5f,  6.5f, Finger::LEFT_THUMB), // LThumb: Space
+        PhysKey(6.5f,  6.5f, Finger::RIGHT_THUMB), // RThumb: Space
+        PhysKey(7.5f,  2.5f, Finger::RIGHT_INDEX), // J
+        PhysKey(8.5f,  2.5f, Finger::RIGHT_MIDDLE), // K
+        PhysKey(9.5f,  2.5f, Finger::RIGHT_RING), // L
+        PhysKey(10.5f, 2.5f, Finger::RIGHT_PINKIE), // ;
     });
 }

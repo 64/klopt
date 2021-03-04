@@ -4,13 +4,12 @@
 #include <unordered_map>
 #include <finger.hpp>
 
-class PhysKey {
+struct PhysKey {
     float abs_x, abs_y;
     Finger finger;
 
-public:
+    PhysKey() : abs_x(0.0f), abs_y(0.0f), finger(Finger::LEFT_PINKIE) {}
     PhysKey(float x, float y, Finger f) : abs_x(x), abs_y(y), finger(f) {}
-    Finger get_finger() { return finger; }
 
     bool operator==(const PhysKey& other) const {
         return (this->abs_x == other.abs_x)
