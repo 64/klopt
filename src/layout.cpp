@@ -26,9 +26,9 @@ Layout::Layout(PhysLayout phys_map,
 }
 
 char random_char(std::mt19937& rng) {
-    const char *swappable = u8"abcdefghijklmnopqrstuvwxyz";
+    // TODO: Remove magic numbers
     std::uniform_int_distribution<> distrib(0, 25);
-    return swappable[distrib(rng)];
+    return u8"abcdefghijklmnopqrstuvwxyz"[distrib(rng)];
 }
 
 Layout Layout::mutate(std::mt19937& rng) const {
@@ -40,17 +40,18 @@ Layout Layout::mutate(std::mt19937& rng) const {
     std::swap<KeyCombo>(copy.key_map[a], copy.key_map[b]);
 
     // Correct the capitalized versions
-    if (std::isupper(a)) {
+    if (std::islower(a)) {
         copy.key_map[std::toupper(a)].value().set_main(copy.key_map[a].value().main);
     }
 
-    if (std::isupper(b)) {
+    if (std::islower(b)) {
         copy.key_map[std::toupper(b)].value().set_main(copy.key_map[b].value().main);
     }
 
     return copy;
 }
 
+// TODO: Move this to PhysLayout
 void Layout::print() const {
     auto cmp = [](std::pair<char, PhysKey> a, std::pair<char, PhysKey> b) {
         if (a.second.abs_y == b.second.abs_y)
