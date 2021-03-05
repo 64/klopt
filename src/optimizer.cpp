@@ -16,7 +16,7 @@ float transition_prob(float e_old, float e_new, float temp) {
 }
 
 float energy(const Model& m, const Layout& layout, std::string_view text) {
-    return -m.score_text(layout, text);
+    return m.score_text(layout, text);
 }
 
 // https://en.wikipedia.org/wiki/Simulated_annealing#Pseudocode

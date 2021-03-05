@@ -9,6 +9,7 @@ class PhysLayout{
 
 public:
     PhysKey& operator[](const std::string& s) { return key_map.at(s); }
+    PhysKey& operator[](char c) { return key_map.at(std::string(1, c)); }
 
     static PhysLayout get_iso_gb();
 };

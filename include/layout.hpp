@@ -19,8 +19,11 @@ struct Layout {
             std::initializer_list<std::pair<char, KeyCombo>> char_key_map,
             std::initializer_list<PhysKey> home_row);
 
+    Layout(PhysLayout phys_map, std::string_view format);
+
     Layout mutate(std::mt19937& rng) const;
     void print() const;
 
     static Layout get_qwerty();
+    static Layout from_string(std::string_view format);
 };

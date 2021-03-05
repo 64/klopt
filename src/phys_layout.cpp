@@ -39,9 +39,9 @@ PhysLayout PhysLayout::get_iso_gb() {
     map.insert({ "s",     PhysKey(3.2f,  2.5f, Finger::LEFT_RING) });
     map.insert({ "d",     PhysKey(4.2f,  2.5f, Finger::LEFT_MIDDLE) });
     map.insert({ "f",     PhysKey(5.2f,  2.5f, Finger::LEFT_INDEX) });
-    map.insert({ "g",     PhysKey(6.2f,  2.5f, Finger::LEFT_RING) });
-    map.insert({ "h",     PhysKey(7.2f,  2.5f, Finger::RIGHT_RING) });
-    map.insert({ "j",     PhysKey(8.2f,  2.5f, Finger::RIGHT_RING) });
+    map.insert({ "g",     PhysKey(6.2f,  2.5f, Finger::LEFT_INDEX) });
+    map.insert({ "h",     PhysKey(7.2f,  2.5f, Finger::RIGHT_INDEX) });
+    map.insert({ "j",     PhysKey(8.2f,  2.5f, Finger::RIGHT_INDEX) });
     map.insert({ "k",     PhysKey(9.2f,  2.5f, Finger::RIGHT_MIDDLE) });
     map.insert({ "l",     PhysKey(10.2f, 2.5f, Finger::RIGHT_RING) });
     map.insert({ ";",     PhysKey(11.2f, 2.5f, Finger::RIGHT_PINKIE) });

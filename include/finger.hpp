@@ -1,4 +1,5 @@
 #pragma once
+#include <cstddef>
 
 class Finger {
 public:
@@ -15,14 +16,14 @@ public:
         RIGHT_PINKIE,
     };
 
-    static constexpr size_t NUM_FINGERS = 10;
+    static constexpr std::size_t NUM_FINGERS = 10;
 
 private:
     Value v;
 
 public:
-    constexpr Finger(Value v) : v(v) {}
-    constexpr operator Value() const { return v; };
+    Finger(Value v) : v(v) {}
+    operator Value() const { return v; };
     explicit operator bool() = delete;
 
     Finger get_opposite_pinkie() {

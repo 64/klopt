@@ -60,7 +60,7 @@ void Layout::print() const {
     };
     std::priority_queue<std::pair<char, PhysKey>, std::vector<std::pair<char, PhysKey>>, decltype(cmp)> queue(cmp);
 
-    std::string printable = "1234567890-=qwertyuiop[]asdfghjkl;'#\\zxcvbnm,./";
+    std::string printable = "1234567890-=qwertyuiop[]asdfghjkl;'#zxcvbnm,./";
     for (auto c : printable)
         queue.push({ c, key_map[c].value().main });
 
@@ -161,15 +161,34 @@ Layout Layout::get_qwerty() {
     // Home row 
     // TODO: This should really be moved to PhysLayout
     {
-        PhysKey(1.5f,  2.5f, Finger::LEFT_PINKIE), // A
-        PhysKey(2.5f,  2.5f, Finger::LEFT_RING), // S
-        PhysKey(3.5f,  2.5f, Finger::LEFT_MIDDLE), // D
-        PhysKey(4.5f,  2.5f, Finger::LEFT_INDEX), // F
-        PhysKey(5.5f,  6.5f, Finger::LEFT_THUMB), // LThumb: Space
-        PhysKey(6.5f,  6.5f, Finger::RIGHT_THUMB), // RThumb: Space
-        PhysKey(7.5f,  2.5f, Finger::RIGHT_INDEX), // J
-        PhysKey(8.5f,  2.5f, Finger::RIGHT_MIDDLE), // K
-        PhysKey(9.5f,  2.5f, Finger::RIGHT_RING), // L
-        PhysKey(10.5f, 2.5f, Finger::RIGHT_PINKIE), // ;
+        phys_map["a"],
+        phys_map["s"],
+        phys_map["d"],
+        phys_map["f"],
+        phys_map["lalt"],
+        phys_map["space"],
+        phys_map["j"],
+        phys_map["k"],
+        phys_map["l"],
+        phys_map[";"],
     });
 }
+
+// For testing purposes, this is terrible and hacky and will be removed
+Layout Layout::from_string(std::string_view format) {
+    PhysLayout phys_map = PhysLayout::get_iso_gb();
+    Layout l = get_qwerty();
+    std::string qwerty = "qwertyuiopasdfghjklzxcvbnm";
+    
+    for (std::size_t i = 0; i < qwerty.size(); i++) {
+        char target = format[i];
+        char qwerty_char = qwerty[i];
+        Finger f = l.key_map[target].value().main.finger;
+        l.key_map[target] = KeyCombo(phys_map[qwerty_char]);
+        auto shift_string = f.get_opposite_pinkie() == Finger::LEFT_PINKIE ? "lshift" : "rshift";
+        l.key_map[std::toupper(target)] = KeyCombo(phys_map[qwerty_char], phys_map[shift_string]);
+    }
+
+    return l;
+}
+

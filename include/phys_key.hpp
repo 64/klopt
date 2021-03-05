@@ -11,6 +11,7 @@ struct PhysKey {
     PhysKey() : abs_x(0.0f), abs_y(0.0f), finger(Finger::LEFT_PINKIE) {}
     PhysKey(float x, float y, Finger f) : abs_x(x), abs_y(y), finger(f) {}
 
+    bool operator!=(const PhysKey& other) const { return !operator==(other); }
     bool operator==(const PhysKey& other) const {
         return (this->abs_x == other.abs_x)
             && (this->abs_y == other.abs_y)

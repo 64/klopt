@@ -23,7 +23,7 @@ int main() {
     auto qwerty = Layout::get_qwerty();
     auto qwerty_score = m.score_text(qwerty, text);
 
-    Optimizer o(qwerty_score / 100.0f, 20000);
+    Optimizer o(qwerty_score / 200.0f, 20000);
     auto best = o.compute_optimal(m, text);
 
     best.print();
