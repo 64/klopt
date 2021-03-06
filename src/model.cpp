@@ -47,13 +47,13 @@ float Model::score_text(const Layout& layout, std::string_view text) const {
         KeyCombo next_key_seq = layout.key_map[c].value();
 
         // Some characters require more than one key press (e.g uppercase characters)
-        for (PhysKey next_key : next_key_seq) {
+        for (PhysKey next_key : next_key_seq.key_list()) {
             int moving_finger_idx = static_cast<int>(next_key.finger);
             PhysKey last_key = last_finger_pos[moving_finger_idx];
             float finger_penalty = finger_penalties[moving_finger_idx];
 
             // Penalize sideways movement and hand stretching
-            penalty += finger_penalty * next_key.weighted_distance_to(last_key, 1.5f, 0.5f);
+            penalty += finger_penalty * next_key.weighted_distance_to(last_key, 1.3f, 0.7f);
             penalty += stretched_hand_penalty(last_finger_pos, next_key);
 
             if (last_finger_used && next_key.finger.same_hand(last_key.finger)) {

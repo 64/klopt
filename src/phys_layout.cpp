@@ -106,7 +106,7 @@ std::string PhysLayout::stringify(const Layout &layout) {
 
     std::string printable = "1234567890-=qwertyuiop[]asdfghjkl;'#zxcvbnm,./";
     for (auto c : printable)
-        queue.push({ c, layout.key_map[c].value().main });
+        queue.push({ c, layout.key_map[c].value()[0] });
 
     // Grab the next character to be printed by its position in the queue
     float current_y = queue.top().second.abs_y;

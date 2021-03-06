@@ -14,9 +14,9 @@ Layout::Layout(PhysLayout phys_map,
 
         // Add the uppercase variant as well, with the appropriate shift key held
         if (std::islower(char_key.first)) {
-            auto finger = char_key.second.main.finger;
+            auto finger = char_key.second[0].finger;
             auto shift_string = finger.get_opposite_pinkie() == Finger::LEFT_PINKIE ? "lshift" : "rshift";
-            key_map[std::toupper(char_key.first)] = KeyCombo(char_key.second.main, phys_map[shift_string]);
+            key_map[std::toupper(char_key.first)] = KeyCombo(char_key.second[0], phys_map[shift_string]);
         }
     }
 }
@@ -37,11 +37,11 @@ Layout Layout::mutate(std::mt19937& rng) const {
 
     // Correct the capitalized versions
     if (std::islower(a)) {
-        copy.key_map[std::toupper(a)].value().main = copy.key_map[a].value().main;
+        copy.key_map[std::toupper(a)].value()[0] = copy.key_map[a].value()[0];
     }
 
     if (std::islower(b)) {
-        copy.key_map[std::toupper(b)].value().main = copy.key_map[b].value().main;
+        copy.key_map[std::toupper(b)].value()[0] = copy.key_map[b].value()[0];
     }
 
     return copy;
@@ -144,7 +144,7 @@ Layout Layout::from_string(std::string_view format) {
     for (std::size_t i = 0; i < qwerty.size(); i++) {
         char target = format.at(i);
         char qwerty_char = qwerty.at(i);
-        Finger f = l.key_map[target].value().main.finger;
+        Finger f = l.key_map[target].value()[0].finger;
         l.key_map[target] = KeyCombo(phys_map[qwerty_char]);
         auto shift_string = f.get_opposite_pinkie() == Finger::LEFT_PINKIE ? "lshift" : "rshift";
         l.key_map[std::toupper(target)] = KeyCombo(phys_map[qwerty_char], phys_map[shift_string]);

@@ -6,10 +6,6 @@ This project is a work in progress - the model only tracks finger distance and o
 
 Licensed under GPLv3.
 
-TODO:
-* Add python bindings
-* Get rid of TODOs
-
 ## Compiling
 
-Use the `cmake` generator of your choice.
+Use the `cmake` generator of your choice, with a C++20-compatible compiler (for ranges and concepts support).
