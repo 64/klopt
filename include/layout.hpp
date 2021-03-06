@@ -15,10 +15,7 @@ struct Layout {
     // Indexed by finger
     std::array<PhysKey, Finger::NUM_FINGERS> home_row;
 
-    Layout(PhysLayout phys_map,
-            std::initializer_list<std::pair<char, KeyCombo>> char_key_map,
-            std::initializer_list<PhysKey> home_row);
-
+    Layout(PhysLayout phys_map, std::initializer_list<std::pair<char, KeyCombo>> char_key_map);
     Layout(PhysLayout phys_map, std::string_view format);
 
     Layout mutate(std::mt19937& rng) const;

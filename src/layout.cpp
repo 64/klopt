@@ -8,8 +8,7 @@
 #include <layout.hpp>
 
 Layout::Layout(PhysLayout phys_map,
-        std::initializer_list<std::pair<char, KeyCombo>> char_key_map,
-        std::initializer_list<PhysKey> home_row_keys) : home_row() {
+        std::initializer_list<std::pair<char, KeyCombo>> char_key_map) : home_row(phys_map.home_row) {
     for (auto char_key : char_key_map) {
         key_map[char_key.first] = char_key.second;
 
@@ -20,16 +19,12 @@ Layout::Layout(PhysLayout phys_map,
             key_map[std::toupper(char_key.first)] = KeyCombo(char_key.second.main, phys_map[shift_string]);
         }
     }
-
-    for (auto key : home_row_keys) {
-        home_row[key.finger] = key; 
-    }
 }
 
 char random_char(std::mt19937& rng) {
-    // TODO: Remove magic numbers
-    std::uniform_int_distribution<> distrib(0, 25);
-    return u8"abcdefghijklmnopqrstuvwxyz"[distrib(rng)];
+    std::string_view alphabet = "abcdefghijklmnopqrstuvwxyz";
+    std::uniform_int_distribution<> distrib(0, alphabet.size() - 1);
+    return alphabet[distrib(rng)];
 }
 
 Layout Layout::mutate(std::mt19937& rng) const {
@@ -42,42 +37,14 @@ Layout Layout::mutate(std::mt19937& rng) const {
 
     // Correct the capitalized versions
     if (std::islower(a)) {
-        copy.key_map[std::toupper(a)].value().set_main(copy.key_map[a].value().main);
+        copy.key_map[std::toupper(a)].value().main = copy.key_map[a].value().main;
     }
 
     if (std::islower(b)) {
-        copy.key_map[std::toupper(b)].value().set_main(copy.key_map[b].value().main);
+        copy.key_map[std::toupper(b)].value().main = copy.key_map[b].value().main;
     }
 
     return copy;
-}
-
-// TODO: Move this to PhysLayout
-void Layout::print() const {
-    auto cmp = [](std::pair<char, PhysKey> a, std::pair<char, PhysKey> b) {
-        if (a.second.abs_y == b.second.abs_y)
-            return a.second.abs_x > b.second.abs_x;
-        else
-            return a.second.abs_y > b.second.abs_y;
-    };
-    std::priority_queue<std::pair<char, PhysKey>, std::vector<std::pair<char, PhysKey>>, decltype(cmp)> queue(cmp);
-
-    std::string printable = "1234567890-=qwertyuiop[]asdfghjkl;'#zxcvbnm,./";
-    for (auto c : printable)
-        queue.push({ c, key_map[c].value().main });
-
-    float current_y = queue.top().second.abs_y;
-    while(!queue.empty()) {
-        auto key = queue.top();
-        if (current_y < key.second.abs_y) {
-            std::putchar('\n');
-            current_y = key.second.abs_y;
-        }
-
-        std::putchar(key.first);
-        queue.pop();
-    }
-    std::putchar('\n');
 }
 
 Layout Layout::get_random(std::mt19937& rng) {
@@ -165,20 +132,6 @@ Layout Layout::get_qwerty() {
         { '?', { phys_map["/"], phys_map["lshift"] } },
 
         { ' ', phys_map["space"] }
-    }, 
-    // Home row 
-    // TODO: This should really be moved to PhysLayout
-    {
-        phys_map["a"],
-        phys_map["s"],
-        phys_map["d"],
-        phys_map["f"],
-        phys_map["lalt"],
-        phys_map["space"],
-        phys_map["j"],
-        phys_map["k"],
-        phys_map["l"],
-        phys_map[";"],
     });
 }
 

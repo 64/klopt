@@ -1,5 +1,9 @@
 #include <unordered_map>
 #include <string>
+#include <random>
+#include <algorithm>
+#include <queue>
+#include <layout.hpp>
 #include <phys_key.hpp>
 #include <phys_layout.hpp>
 
@@ -69,5 +73,54 @@ PhysLayout PhysLayout::get_iso_gb() {
     map.insert({ "altgr", PhysKey(9.7f,  4.5f, Finger::RIGHT_THUMB) });
     map.insert({ "rctrl", PhysKey(11.7f,  4.5f, Finger::RIGHT_PINKIE) });
 
-    return PhysLayout(map);
+
+
+    return PhysLayout(map, {
+        map["a"],
+        map["s"],
+        map["d"],
+        map["f"],
+        map["lalt"],
+        map["space"],
+        map["j"],
+        map["k"],
+        map["l"],
+        map[";"],
+    });
+}
+
+std::string PhysLayout::stringify(const Layout &layout) {
+    std::string out; 
+
+    auto cmp = [](std::pair<char, PhysKey> a, std::pair<char, PhysKey> b) {
+        if (a.second.abs_y == b.second.abs_y)
+            return a.second.abs_x > b.second.abs_x;
+        else
+            return a.second.abs_y > b.second.abs_y;
+    };
+
+    std::priority_queue<
+        std::pair<char, PhysKey>,
+        std::vector<std::pair<char, PhysKey>>, decltype(cmp)
+    > queue(cmp);
+
+    std::string printable = "1234567890-=qwertyuiop[]asdfghjkl;'#zxcvbnm,./";
+    for (auto c : printable)
+        queue.push({ c, layout.key_map[c].value().main });
+
+    // Grab the next character to be printed by its position in the queue
+    float current_y = queue.top().second.abs_y;
+    while(!queue.empty()) {
+        auto key = queue.top();
+        if (current_y < key.second.abs_y) {
+            out.push_back('\n');
+            current_y = key.second.abs_y;
+        }
+
+        out.push_back(key.first);
+        queue.pop();
+    }
+    out.push_back('\n');
+
+    return out;
 }

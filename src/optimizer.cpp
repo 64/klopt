@@ -22,7 +22,7 @@ float energy(const Model& m, const Layout& layout, std::string_view text) {
 }
 
 // https://en.wikipedia.org/wiki/Simulated_annealing#Pseudocode
-Layout Optimizer::simulated_annealing(Model m, std::string_view text) {
+OptResult Optimizer::simulated_annealing(Model m, std::string_view text) {
     // Prepare RNG
     std::random_device rd;
     std::mt19937 rng(rd());
@@ -54,69 +54,61 @@ Layout Optimizer::simulated_annealing(Model m, std::string_view text) {
         }
     }
 
-    return s_best;
+    return OptResult { s_best, e_best };
 }
 
 void Optimizer::thread_func(Model m,
         std::chrono::time_point<std::chrono::system_clock> end,
-        Layout& out,
+        OptResult& out,
         std::string_view text) {
 
-    auto best_layout = Layout::get_qwerty();
-    auto best_score = -INFINITY;
+    auto best = OptResult { Layout::get_qwerty(), -INFINITY };
 
     while (std::chrono::system_clock::now() < end) {
-        auto cur_layout = simulated_annealing(m, text);
-        auto cur_score = m.score_text(cur_layout, text);
+        auto cur = simulated_annealing(m, text);
 
-        if (cur_score > best_score) {
-            best_layout = cur_layout;
-            best_score = cur_score;
+        if (cur.score > best.score) {
+            best = cur;
         }
     }
 
-    out = best_layout;
+    out = best;
 }
 
-Layout Optimizer::compute_optimal(Model m, int num_threads, int time_s, std::string_view text) {
+OptResult Optimizer::compute_optimal(Model m, int num_threads, int time_s, std::string_view text) {
     auto now = std::chrono::system_clock::now();
     auto end = now + std::chrono::seconds(time_s);
 
     auto threads = std::vector<std::thread>();
-    auto out = std::vector<Layout>(num_threads, Layout::get_qwerty());
+    auto out = std::vector<OptResult>(num_threads, OptResult { Layout::get_qwerty(), -INFINITY });
 
     for (int i = 0; i < num_threads; i++) {
         auto& thread_out = out[i];
         threads.emplace_back([&]{
-            auto best_layout = Layout::get_qwerty();
-            auto best_score = -INFINITY;
+            auto best = OptResult { Layout::get_qwerty(), -INFINITY };
 
             while (std::chrono::system_clock::now() < end) {
-                auto cur_layout = simulated_annealing(m, text);
-                auto cur_score = m.score_text(cur_layout, text);
+                auto cur = simulated_annealing(m, text);
 
-                if (cur_score > best_score) {
-                    best_layout = cur_layout;
-                    best_score = cur_score;
+                if (cur.score > best.score) {
+                    best = cur;
                 }
             }
 
-            thread_out = best_layout;
+            thread_out = best;
         });
     }
 
-    auto best_layout = Layout::get_qwerty();
-    auto best_score = -INFINITY;
+    auto best = OptResult { Layout::get_qwerty(), -INFINITY };
     for (int i = 0; i < num_threads; i++) {
         threads[i].join();
 
-        auto& cur_layout = out[i];
-        auto cur_score = m.score_text(cur_layout, text);
-        if (cur_score > best_score) {
-            best_layout = cur_layout;
-            best_score = cur_score;
+        auto& cur = out[i];
+        if (cur.score > best.score) {
+            best.layout = cur.layout;
+            best.score = cur.score;
         }
     }
 
-    return best_layout;
+    return best;
 }

@@ -8,7 +8,7 @@ Licensed under GPLv3.
 
 TODO:
 * Add python bindings
-* Which C++ standard?
+* Get rid of TODOs
 
 ## Compiling
 
