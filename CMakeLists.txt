@@ -7,8 +7,9 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 endif()
 
+add_subdirectory(pybind11)
 add_subdirectory(src)
-add_subdirectory(cli)
+add_subdirectory(apps)
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
     include(CTest)

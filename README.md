@@ -8,4 +8,4 @@ Licensed under GPLv3.
 
 ## Compiling
 
-Use the `cmake` generator of your choice, with a C++20-compatible compiler (for ranges and concepts support).
+Install submodules with `git submodule update --init`. Then use the `cmake` generator of your choice, with a C++20-compatible compiler (for ranges and concepts support).
