@@ -15,7 +15,8 @@ std::string slurp(std::istream& in) {
 }
 
 int main() {
-    std::cout << "Running klopt..." << std::endl;
+    std::cout << "Running klopt... (pass input to stdin)" << std::endl;
+    std::cout << "---" << std::endl;
     std::string text = slurp(std::cin);
 
     Model m;
@@ -23,8 +24,8 @@ int main() {
     auto qwerty = Layout::get_qwerty();
     auto qwerty_score = m.score_text(qwerty, text);
 
-    Optimizer o(qwerty_score / 200.0f, 20000);
-    auto best = o.compute_optimal(m, text);
+    Optimizer o(qwerty_score / 200.0f, 50000);
+    auto best = o.compute_optimal(m, 3, 20, text);
 
     best.print();
     std::cout << m.score_text(best, text) << std::endl;;

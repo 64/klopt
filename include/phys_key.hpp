@@ -19,8 +19,12 @@ struct PhysKey {
     }
 
     float distance_to(const PhysKey& other) const {
-        float x_diff = abs_x - other.abs_x;
-        float y_diff = abs_y - other.abs_y;
+        return weighted_distance_to(other, 1.0f, 1.0f);
+    }
+
+    float weighted_distance_to(const PhysKey& other, float x_weight, float y_weight) const {
+        float x_diff = (abs_x - other.abs_x) * x_weight;
+        float y_diff = (abs_y - other.abs_y) * y_weight;
         return std::sqrt(x_diff * x_diff + y_diff * y_diff);
     }
 };

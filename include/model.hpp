@@ -3,7 +3,8 @@
 
 class Model {
     float repeated_finger_penalty = 1.0f;
-    float non_home_row_penalty = 0.5f;
+    float repeated_hand_penalty = 0.5f;
+    float non_home_row_penalty = 0.0f;
 
     std::array<float, Finger::NUM_FINGERS> finger_penalties = {
         0.85f, // Left pinkie
@@ -22,4 +23,8 @@ public:
     Model() {}
 
     float score_text(const Layout& layout, std::string_view text) const;
+
+    float stretched_hand_penalty(
+            const std::array<PhysKey, Finger::NUM_FINGERS>& finger_pos,
+            PhysKey next) const;
 };

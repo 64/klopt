@@ -25,5 +25,6 @@ struct Layout {
     void print() const;
 
     static Layout get_qwerty();
+    static Layout get_random(std::mt19937& rng);
     static Layout from_string(std::string_view format);
 };

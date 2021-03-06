@@ -2,8 +2,8 @@
 #include <iterator>
 #include <phys_key.hpp>
 
-// TODO: Rename
 // This is pretty hacky... but it seems like the nicest interface without including some small_vector library
+// I think I can make it work nicely with ranges and a std::array<std::optional<PhysKey>, 3>
 struct KeyCombo {
     PhysKey main;
     std::tuple<std::optional<PhysKey>, std::optional<PhysKey>> modifiers;
@@ -12,6 +12,7 @@ struct KeyCombo {
     KeyCombo(PhysKey key, PhysKey modA) : main(key), modifiers({ modA, std::nullopt }) {}
     KeyCombo(PhysKey key, PhysKey modA, PhysKey modB) : main(key), modifiers({ modA, modB }) {}
 
+    // TODO: Remove this
     void set_main(PhysKey new_main) {
         main = new_main; 
     }

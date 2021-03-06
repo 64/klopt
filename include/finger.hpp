@@ -44,5 +44,9 @@ public:
         }
 
     }
+
+    bool same_hand(Finger other) {
+        return this->get_opposite_pinkie() == other.get_opposite_pinkie();
+    }
 };
 

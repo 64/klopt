@@ -1,6 +1,7 @@
 #include <optional>
 #include <cctype>
 #include <random>
+#include <algorithm>
 #include <queue>
 #include <iostream>
 #include <phys_layout.hpp>
@@ -77,6 +78,12 @@ void Layout::print() const {
         queue.pop();
     }
     std::putchar('\n');
+}
+
+Layout Layout::get_random(std::mt19937& rng) {
+    std::string alphabet = "qwertyuiopasdfghjklzxcvbnm";
+    std::shuffle(alphabet.begin(), alphabet.end(), rng);
+    return Layout::from_string(alphabet);
 }
 
 Layout Layout::get_qwerty() {
@@ -175,15 +182,15 @@ Layout Layout::get_qwerty() {
     });
 }
 
-// For testing purposes, this is terrible and hacky and will be removed
+// For testing purposes, this is quite hacky and will be removed
 Layout Layout::from_string(std::string_view format) {
     PhysLayout phys_map = PhysLayout::get_iso_gb();
     Layout l = get_qwerty();
     std::string qwerty = "qwertyuiopasdfghjklzxcvbnm";
     
     for (std::size_t i = 0; i < qwerty.size(); i++) {
-        char target = format[i];
-        char qwerty_char = qwerty[i];
+        char target = format.at(i);
+        char qwerty_char = qwerty.at(i);
         Finger f = l.key_map[target].value().main.finger;
         l.key_map[target] = KeyCombo(phys_map[qwerty_char]);
         auto shift_string = f.get_opposite_pinkie() == Finger::LEFT_PINKIE ? "lshift" : "rshift";
